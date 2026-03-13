@@ -13,7 +13,7 @@
                 <a href="/" class="inline-block hover:opacity-80 transition">
                     <h1 class="text-2xl font-semibold text-gray-800">Survey App</h1>
                 </a>
-                <p class="text-sm text-gray-500 mt-1">Sign in to your admin account</p>
+                <p class="text-sm text-gray-500 mt-1">Sign in to your account</p>
             </div>
 
             <?php if ($error = session()->getFlashdata('error')): ?>
@@ -45,6 +45,10 @@
                     Sign in
                 </button>
             </form>
+
+            <p class="text-center text-sm text-gray-600 mt-6">
+                Don't have an account? <a href="<?= base_url('admin/register') ?>" class="text-blue-600 hover:underline font-medium">Create one</a>
+            </p>
         </div>
     </div>
 </body>

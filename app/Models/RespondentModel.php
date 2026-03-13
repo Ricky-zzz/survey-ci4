@@ -8,7 +8,7 @@ class RespondentModel extends Model
 {
     protected $table         = 'respondents';
     protected $primaryKey    = 'id';
-    protected $allowedFields = ['survey_id', 'submitted_at'];
+    protected $allowedFields = ['survey_id', 'fullname', 'email', 'address', 'age', 'submitted_at'];
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';

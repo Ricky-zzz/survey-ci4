@@ -10,12 +10,15 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', 'Public\HomeController::index');
 $routes->post('survey/access', 'Public\HomeController::accessByPasscode');
 
-// ── Admin auth  ──────────────────────────────────────────────────
-$routes->get('admin/login',  'Admin\AuthController::login');
-$routes->post('admin/login', 'Admin\AuthController::doLogin');
-$routes->get('admin/logout', 'Admin\AuthController::logout');
+// ── Admin auth (public routes) ──────────────────────────────────────────────────
+$routes->get('admin/index',   'Admin\AuthController::index');
+$routes->get('admin/login',   'Admin\AuthController::index');  // Redirect from old URL
+$routes->post('admin/login',  'Admin\AuthController::doLogin');
+$routes->get('admin/register',  'Admin\AuthController::register');
+$routes->post('admin/register', 'Admin\AuthController::doRegister');
+$routes->get('admin/logout',  'Admin\AuthController::logout');
 
-// ── Admin  ────────────────────────────────────────
+// ── Admin (protected) ────────────────────────────────────────
 $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     $routes->get('',           'Admin\DashboardController::index');
     $routes->get('dashboard',  'Admin\DashboardController::index');
@@ -49,9 +52,11 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     $routes->post('surveys/(:num)/results/(:num)/delete',  'Admin\ResultsController::deleteRespondent/$1/$2');
 });
 
-// ── Public survey routes ────────────────────────────────────────────────────
-$routes->get('s',                    'Public\SurveyController::index');
-$routes->get('s/(:num)',             'Public\SurveyController::show/$1');
-$routes->post('s/(:num)/submit',     'Public\SurveyController::submit/$1');
-$routes->get('s/(:num)/thank-you',   'Public\SurveyController::thankYou/$1');
+// ── Public survey routes (protected by auth filter) ────────────────────────────────────────────────────
+$routes->group('s', ['filter' => 'auth'], static function ($routes) {
+    $routes->get('',                  'Public\SurveyController::index');
+    $routes->get('(:num)',            'Public\SurveyController::show/$1');
+    $routes->post('(:num)/submit',    'Public\SurveyController::submit/$1');
+    $routes->get('(:num)/thank-you',  'Public\SurveyController::thankYou/$1');
+});
 

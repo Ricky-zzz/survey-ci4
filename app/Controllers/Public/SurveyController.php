@@ -45,6 +45,24 @@ class SurveyController extends BaseController
         $this->getPublicSurvey($id);
         $responses = $this->request->getPost('responses') ?? [];
         $files     = $this->request->getFiles();
+        
+        // Extract demographics from form
+        $demographics = [
+            'fullname' => $this->request->getPost('demographics.fullname') ?? '',
+            'email'    => $this->request->getPost('demographics.email') ?? '',
+            'address'  => $this->request->getPost('demographics.address') ?? '',
+            'age'      => $this->request->getPost('demographics.age') ?? null,
+        ];
+
+        // Validate demographics
+        if (empty($demographics['fullname']) || empty($demographics['email'])) {
+            return redirect()->back()
+                ->with('validation_errors', [
+                    'demographics_fullname' => 'Full Name is required',
+                    'demographics_email' => 'Email is required',
+                ])
+                ->withInput();
+        }
 
         $errors = $this->responseService->validateResponses($id, $responses, $files);
         if (! empty($errors)) {
@@ -53,7 +71,7 @@ class SurveyController extends BaseController
                 ->withInput();
         }
 
-        $respondentId = $this->responseService->createRespondent($id);
+        $respondentId = $this->responseService->createRespondent($id, $demographics);
         $this->responseService->saveResponses($respondentId, $responses);
 
         $fileService = new FileUploaderService();

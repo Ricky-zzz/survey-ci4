@@ -74,25 +74,8 @@ CREATE TABLE IF NOT EXISTS `questions` (
   CONSTRAINT `questions_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table survey.questions: ~16 rows (approximately)
+-- Dumping data for table survey.questions: ~0 rows (approximately)
 DELETE FROM `questions`;
-INSERT INTO `questions` (`id`, `section_id`, `question_text`, `type`, `required`, `allow_multiple_files`, `matrix_group_id`, `order_sequence`, `created_at`, `updated_at`) VALUES
-	(1, 1, 'First Name', 'text', 1, 0, NULL, 1, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(2, 1, 'Last Name', 'text', 1, 0, NULL, 2, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(3, 1, 'Middle Name', 'text', 0, 0, NULL, 3, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(4, 1, 'Email', 'text', 1, 0, NULL, 4, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(5, 1, 'Sex', 'multiple_choice', 1, 0, NULL, 5, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(6, 1, 'Age', 'text', 0, 0, NULL, 6, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(7, 2, 'How satisfied are you with our service?', 'scale', 1, 0, NULL, 1, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(8, 2, 'Would you recommend us to others?', 'yesno', 1, 0, NULL, 2, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(9, 2, 'What is your primary feedback?', 'text', 0, 0, NULL, 3, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(10, 2, 'Which department helped you most?', 'multiple_choice', 1, 0, NULL, 4, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(11, 2, 'Please upload your feedback document (PDF only)', 'file_upload', 0, 0, NULL, 5, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(12, 3, 'Product Quality', 'scale', 1, 0, 'service-quality', 1, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(13, 3, 'Customer Service', 'scale', 1, 0, 'service-quality', 2, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(14, 3, 'Communication', 'scale', 1, 0, 'service-quality', 3, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(15, 3, 'Price Value', 'scale', 1, 0, 'service-quality', 4, '2026-03-05 16:48:52', '2026-03-05 16:48:52'),
-	(16, 3, 'Timeliness of Delivery', 'scale', 1, 0, 'service-quality', 5, '2026-03-05 16:48:52', '2026-03-05 16:48:52');
 
 -- Dumping structure for table survey.question_options
 CREATE TABLE IF NOT EXISTS `question_options` (
@@ -107,36 +90,24 @@ CREATE TABLE IF NOT EXISTS `question_options` (
   CONSTRAINT `question_options_ibfk_1` FOREIGN KEY (`question_id`) REFERENCES `questions` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table survey.question_options: ~17 rows (approximately)
+-- Dumping data for table survey.question_options: ~0 rows (approximately)
 DELETE FROM `question_options`;
-INSERT INTO `question_options` (`id`, `question_id`, `option_text`, `value`, `order_sequence`, `created_at`) VALUES
-	(1, 5, 'Male', 'M', 1, '2026-03-05 16:48:52'),
-	(2, 5, 'Female', 'F', 2, '2026-03-05 16:48:52'),
-	(3, 5, 'Other', 'O', 3, '2026-03-05 16:48:52'),
-	(4, 7, 'Very Unsatisfied', '1', 1, '2026-03-05 16:48:52'),
-	(5, 7, 'Unsatisfied', '2', 2, '2026-03-05 16:48:52'),
-	(6, 7, 'Neutral', '3', 3, '2026-03-05 16:48:52'),
-	(7, 7, 'Satisfied', '4', 4, '2026-03-05 16:48:52'),
-	(8, 7, 'Very Satisfied', '5', 5, '2026-03-05 16:48:52'),
-	(9, 12, 'Strongly Disagree', '1', 1, '2026-03-05 16:48:52'),
-	(10, 12, 'Disagree', '2', 2, '2026-03-05 16:48:52'),
-	(11, 12, 'Neutral', '3', 3, '2026-03-05 16:48:52'),
-	(12, 12, 'Agree', '4', 4, '2026-03-05 16:48:52'),
-	(13, 12, 'Strongly Agree', '5', 5, '2026-03-05 16:48:52'),
-	(34, 10, 'Sales', '1', 1, '2026-03-05 16:48:52'),
-	(35, 10, 'Support', '2', 2, '2026-03-05 16:48:52'),
-	(36, 10, 'Technical', '3', 3, '2026-03-05 16:48:52'),
-	(37, 10, 'Other', '4', 4, '2026-03-05 16:48:52');
 
 -- Dumping structure for table survey.respondents
 CREATE TABLE IF NOT EXISTS `respondents` (
   `id` int NOT NULL AUTO_INCREMENT,
   `survey_id` int NOT NULL,
+  `fullname` varchar(255) DEFAULT NULL,
+  `email` varchar(150) NOT NULL,
+  `address` text,
+  `age` int DEFAULT NULL,
   `submitted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_survey_submitted` (`survey_id`,`submitted_at`),
+  KEY `email` (`email`),
+  KEY `age` (`age`),
   CONSTRAINT `respondents_ibfk_1` FOREIGN KEY (`survey_id`) REFERENCES `surveys` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -175,12 +146,8 @@ CREATE TABLE IF NOT EXISTS `sections` (
   CONSTRAINT `sections_ibfk_1` FOREIGN KEY (`survey_id`) REFERENCES `surveys` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table survey.sections: ~3 rows (approximately)
+-- Dumping data for table survey.sections: ~0 rows (approximately)
 DELETE FROM `sections`;
-INSERT INTO `sections` (`id`, `survey_id`, `title`, `description`, `is_respondent_info`, `order_sequence`, `created_at`) VALUES
-	(1, 1, 'Your Information', 'Please provide your details', 1, 0, '2026-03-05 16:48:52'),
-	(2, 1, 'Service Feedback', 'Tell us about your experience', 0, 1, '2026-03-05 16:48:52'),
-	(3, 1, 'Service Quality Matrix', 'Rate the following aspects of our service', 0, 2, '2026-03-05 16:48:52');
 
 -- Dumping structure for table survey.surveys
 CREATE TABLE IF NOT EXISTS `surveys` (
@@ -200,8 +167,6 @@ CREATE TABLE IF NOT EXISTS `surveys` (
 
 -- Dumping data for table survey.surveys: ~0 rows (approximately)
 DELETE FROM `surveys`;
-INSERT INTO `surveys` (`id`, `name`, `description`, `is_public`, `is_active`, `passkey`, `created_by`, `created_at`, `updated_at`) VALUES
-	(1, 'Customer Feedback Survey', 'Help us improve our service', 1, 1, NULL, 1, '2026-03-05 16:48:52', '2026-03-05 16:48:52');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

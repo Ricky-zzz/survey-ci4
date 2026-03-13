@@ -88,11 +88,20 @@ class ResponseService
     }
 
     /**
-     * Create a new respondent record and return id.
+     * Create a new respondent record with demographics and return id.
      */
-    public function createRespondent(int $surveyId): int
+    public function createRespondent(int $surveyId, array $demographics = []): int
     {
-        return (int) $this->respondentModel->insert(['survey_id' => $surveyId]);
+        $data = ['survey_id' => $surveyId];
+        
+        if (!empty($demographics)) {
+            $data['fullname'] = $demographics['fullname'] ?? null;
+            $data['email']    = $demographics['email'] ?? null;
+            $data['address']  = $demographics['address'] ?? null;
+            $data['age']      = $demographics['age'] ?? null;
+        }
+        
+        return (int) $this->respondentModel->insert($data);
     }
 
     /**

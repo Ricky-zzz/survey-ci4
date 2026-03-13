@@ -56,15 +56,6 @@ class SurveyController extends BaseController
             'created_by'  => $adminId,
         ]);
 
-        // Create default respondent-info section
-        $this->sectionModel->insert([
-            'survey_id'          => $surveyId,
-            'title'              => 'Respondent Information',
-            'description'        => 'Please provide your details.',
-            'is_respondent_info' => 1,
-            'order_sequence'     => 0,
-        ]);
-
         return redirect()->to(base_url('admin/surveys/' . $surveyId . '/edit'))
                          ->with('success', 'Survey created. Add your sections and questions.');
     }

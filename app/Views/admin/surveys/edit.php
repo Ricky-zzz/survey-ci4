@@ -119,6 +119,51 @@
         </details>
     </div>
 
+    <!-- Default Demographics (Toggleable) -->
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6" x-data="{ open: false }">
+        <button @click="open = !open" type="button"
+                class="w-full px-5 py-4 text-left hover:bg-gray-50 flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2z"/>
+                </svg>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-800">Default Demographics</h3>
+                    <p class="text-xs text-gray-500 mt-0.5">Auto-captured on all surveys</p>
+                </div>
+            </div>
+            <svg :class="{'rotate-180': open}" class="w-5 h-5 text-gray-400 transition-transform"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+
+        <div x-show="open" x-cloak class="border-t border-gray-100 px-5 py-4 bg-blue-50 space-y-3">
+            <p class="text-xs text-blue-700 mb-3">
+                These fields are automatically captured from respondents—no need to create sections for them.
+            </p>
+            <div class="flex flex-wrap gap-2">
+                <span class="inline-flex items-center bg-white px-2.5 py-1 rounded-lg text-xs font-medium text-blue-700 border border-blue-200">
+                    <span class="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></span>
+                    Full Name *
+                </span>
+                <span class="inline-flex items-center bg-white px-2.5 py-1 rounded-lg text-xs font-medium text-blue-700 border border-blue-200">
+                    <span class="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></span>
+                    Email *
+                </span>
+                <span class="inline-flex items-center bg-white px-2.5 py-1 rounded-lg text-xs font-medium text-gray-600 border border-gray-200">
+                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1.5"></span>
+                    Address
+                </span>
+                <span class="inline-flex items-center bg-white px-2.5 py-1 rounded-lg text-xs font-medium text-gray-600 border border-gray-200">
+                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1.5"></span>
+                    Age
+                </span>
+            </div>
+            <p class="text-xs text-blue-600 font-medium">* Required fields</p>
+        </div>
+    </div>
+
     <!-- Sections -->
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-100">
@@ -139,6 +184,7 @@
         <?php else: ?>
         <div class="divide-y divide-gray-100">
             <?php foreach ($survey['sections'] as $section): ?>
+            <?php if ($section['is_respondent_info']) continue; ?>
             <div class="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition group">
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">

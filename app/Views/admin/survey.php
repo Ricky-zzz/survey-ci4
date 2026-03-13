@@ -68,9 +68,64 @@
           enctype="multipart/form-data" id="surveyForm">
         <?= csrf_field() ?>
 
+        <!-- DEMOGRAPHICS STEP 0 -->
+        <div x-show="currentStep === 0" x-cloak
+             class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            
+            <div class="px-6 py-5 border-b border-gray-100">
+                <h2 class="text-base font-semibold text-gray-800">Your Information</h2>
+                <p class="text-sm text-gray-500 mt-0.5">Please provide your details</p>
+            </div>
+
+            <div class="space-y-5 px-6 py-5">
+                <!-- Full Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-red-500">*</span></label>
+                    <input type="text"
+                           name="demographics[fullname]"
+                           placeholder="Your full name"
+                           required
+                           value="<?= esc(old('demographics.fullname', '')) ?>"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                    <input type="email"
+                           name="demographics[email]"
+                           placeholder="your.email@example.com"
+                           required
+                           value="<?= esc(old('demographics.email', '')) ?>"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Address -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <input type="text"
+                           name="demographics[address]"
+                           placeholder="Your address (optional)"
+                           value="<?= esc(old('demographics.address', '')) ?>"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Age -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                    <input type="number"
+                           name="demographics[age]"
+                           placeholder="Your age (optional)"
+                           min="1" max="150"
+                           value="<?= esc(old('demographics.age', '')) ?>"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+
         <?php foreach ($survey['sections'] as $sIndex => $section): ?>
-        <!-- Section <?= $sIndex ?> -->
-        <div x-show="currentStep === <?= $sIndex ?>" x-cloak
+        <!-- Section <?= $sIndex + 1 ?> -->
+        <div x-show="currentStep === <?= $sIndex + 1 ?>" x-cloak
              class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
 
             <div class="px-6 py-5 border-b border-gray-100">
@@ -179,8 +234,11 @@
 function surveyForm(total) {
     return {
         currentStep: 0,
-        totalSteps:  total,
-        sectionTitles: <?= json_encode(array_column($survey['sections'], 'title')) ?>,
+        totalSteps:  total + 1,
+        sectionTitles: [
+            'Your Information',
+            <?= json_encode(array_column($survey['sections'], 'title')) ?>
+        ].flat(),
         errorQuestionIds: <?= json_encode(array_keys(session()->getFlashdata('validation_errors') ?? [])) ?>,
 
         init() {

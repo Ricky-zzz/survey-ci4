@@ -26,6 +26,42 @@
         </a>
     </div>
 
+    <?php if ($respondentId > 0): ?>
+    <!-- Demographics Summary -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h2 class="text-sm font-semibold text-gray-700">Your Information</h2>
+        </div>
+        <?php  
+        // Fetch respondent demographics
+        $respondentModel = new \App\Models\RespondentModel();
+        $respondent = $respondentModel->find($respondentId);
+        ?>
+        <div class="px-6 py-5 space-y-4">
+            <div>
+                <p class="text-xs text-gray-500 mb-1">Full Name</p>
+                <p class="text-sm font-medium text-gray-800"><?= esc($respondent['fullname'] ?? '-') ?></p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 mb-1">Email</p>
+                <p class="text-sm font-medium text-gray-800"><?= esc($respondent['email'] ?? '-') ?></p>
+            </div>
+            <?php if (!empty($respondent['address'])): ?>
+            <div>
+                <p class="text-xs text-gray-500 mb-1">Address</p>
+                <p class="text-sm font-medium text-gray-800"><?= esc($respondent['address']) ?></p>
+            </div>
+            <?php endif; ?>
+            <?php if (!empty($respondent['age'])): ?>
+            <div>
+                <p class="text-xs text-gray-500 mb-1">Age</p>
+                <p class="text-sm font-medium text-gray-800"><?= esc($respondent['age']) ?></p>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <?php if (!empty($answers) && !empty($survey['sections'])): ?>
     <!-- Response summary -->
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
