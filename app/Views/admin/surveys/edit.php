@@ -100,11 +100,6 @@
                         <input type="text" readonly value="<?= esc($survey['passkey']) ?>" id="passcodeDisplay"
                                class="flex-1 border border-gray-200 bg-gray-50 rounded-lg px-3 py-2 text-sm font-mono text-gray-700 cursor-pointer"
                                onclick="this.select()">
-                        <button type="button"
-                                onclick="navigator.clipboard.writeText(document.getElementById('passcodeDisplay').value).then(()=>{ this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',1500) })"
-                                class="px-3 py-2 text-xs border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition">
-                            Copy
-                        </button>
                         <button type="submit" name="regenerate_passkey" value="1"
                                 onclick="return confirm('Generate a new passcode? The old one will stop working.')"
                                 class="px-3 py-2 text-xs border border-orange-200 text-orange-600 rounded-lg hover:bg-orange-50 transition">
@@ -145,22 +140,21 @@
             <div class="flex flex-wrap gap-2">
                 <span class="inline-flex items-center bg-white px-2.5 py-1 rounded-lg text-xs font-medium text-blue-700 border border-blue-200">
                     <span class="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></span>
-                    Full Name *
+                    Full Name 
                 </span>
                 <span class="inline-flex items-center bg-white px-2.5 py-1 rounded-lg text-xs font-medium text-blue-700 border border-blue-200">
                     <span class="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></span>
                     Email *
                 </span>
-                <span class="inline-flex items-center bg-white px-2.5 py-1 rounded-lg text-xs font-medium text-gray-600 border border-gray-200">
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1.5"></span>
-                    Address
+                <span class="inline-flex items-center bg-white px-2.5 py-1 rounded-lg text-xs font-medium text-blue-700 border border-blue-200">
+                    <span class="w-1.5 h-1.5 bg-blue-400 rounded-full mr-1.5"></span>
+                    Address *
                 </span>
-                <span class="inline-flex items-center bg-white px-2.5 py-1 rounded-lg text-xs font-medium text-gray-600 border border-gray-200">
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1.5"></span>
-                    Age
+                <span class="inline-flex items-center bg-white px-2.5 py-1 rounded-lg text-xs font-medium text-blue-700 border border-blue-200">
+                    <span class="w-1.5 h-1.5 bg-blue-400 rounded-full mr-1.5"></span>
+                    Age *
                 </span>
             </div>
-            <p class="text-xs text-blue-600 font-medium">* Required fields</p>
         </div>
     </div>
 

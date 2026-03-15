@@ -1,23 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= esc($survey['name']) ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
-</head>
-<body class="bg-gray-50 min-h-screen">
+<?= $this->extend('layout_admin') ?>
+
+<?= $this->section('content') ?>
 
 <div x-data="surveyForm(<?= count($survey['sections']) ?>)"
      x-init="init()">
 
     <!-- Header with Progress -->
-    <div class="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
-        <div class="max-w-2xl mx-auto px-4 py-5">
+    <div class="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm -mx-6 px-6 mb-6">
+        <div class="py-5">
             <div class="mb-4">
                 <h1 class="text-2xl font-semibold text-gray-900"><?= esc($survey['name']) ?></h1>
                 <?php if ($survey['description']): ?>
@@ -37,31 +27,62 @@
         </div>
     </div>
 
-    <div class="max-w-2xl mx-auto px-4 py-10">
-
     <!-- Validation Errors (from server) -->
     <?php if ($ve = session()->getFlashdata('validation_errors')): ?>
-    <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm" id="errorBox">
-        <p class="font-medium mb-2">Please answer the following required fields:</p>
-        <ul class="list-disc list-inside space-y-1">
-            <?php foreach ($ve as $qid => $err): ?>
-                <li><a href="#question-<?= $qid ?>" class="hover:underline"><?= esc($err) ?></a></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-    <script>
-        // Scroll to first error and set currentStep to the section containing the error
-        document.addEventListener('DOMContentLoaded', function() {
-            const firstErrorLink = document.querySelector('#errorBox a');
-            if (firstErrorLink) {
-                firstErrorLink.click();
-                const firstError = document.querySelector(firstErrorLink.hash);
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
+        <?php 
+        $demographicsErrors = [];
+        $questionErrors = [];
+        foreach ($ve as $key => $err) {
+            if (strpos($key, 'demographics_') === 0) {
+                $demographicsErrors[$key] = $err;
+            } else {
+                $questionErrors[$key] = $err;
             }
-        });
-    </script>
+        }
+        ?>
+        <?php if (!empty($demographicsErrors)): ?>
+        <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm" id="demographicsErrorBox">
+            <p class="font-medium mb-2">Please complete your information:</p>
+            <ul class="list-disc list-inside space-y-1">
+                <?php foreach ($demographicsErrors as $err): ?>
+                    <li><?= esc($err) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <script>
+            // Scroll to demographics section if there are demographic errors
+            document.addEventListener('DOMContentLoaded', function() {
+                const surveyForm = document.querySelector('[x-data*="surveyForm"]');
+                if (surveyForm && surveyForm.__alpine) {
+                    surveyForm.__alpine.currentStep = 0;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+        </script>
+        <?php endif; ?>
+        <?php if (!empty($questionErrors)): ?>
+        <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm" id="errorBox">
+            <p class="font-medium mb-2">Please answer the following required fields:</p>
+            <ul class="list-disc list-inside space-y-1">
+                <?php foreach ($questionErrors as $qid => $err): ?>
+                    <li><a href="#question-<?= $qid ?>" class="hover:underline"><?= esc($err) ?></a></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <script>
+            // Scroll to first error and set currentStep to the section containing the error
+            document.addEventListener('DOMContentLoaded', function() {
+                const firstErrorLink = document.querySelector('#errorBox a');
+                if (firstErrorLink) {
+                    firstErrorLink.click();
+                    const firstError = document.querySelector(firstErrorLink.hash);
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+        </script>
+        <?php endif; ?>
     <?php endif; ?>
 
     <form method="POST" action="<?= base_url('s/' . $survey['id'] . '/submit') ?>"
@@ -80,11 +101,10 @@
             <div class="space-y-5 px-6 py-5">
                 <!-- Full Name -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-gray-500">(optional)</span></label>
                     <input type="text"
                            name="demographics[fullname]"
                            placeholder="Your full name"
-                           required
                            value="<?= esc(old('demographics.fullname', '')) ?>"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -102,21 +122,23 @@
 
                 <!-- Address -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Address <span class="text-red-500">*</span></label>
                     <input type="text"
                            name="demographics[address]"
-                           placeholder="Your address (optional)"
+                           placeholder="Your address"
+                           required
                            value="<?= esc(old('demographics.address', '')) ?>"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
                 <!-- Age -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Age <span class="text-red-500">*</span></label>
                     <input type="number"
                            name="demographics[age]"
-                           placeholder="Your age (optional)"
+                           placeholder="Your age"
                            min="1" max="150"
+                           required
                            value="<?= esc(old('demographics.age', '')) ?>"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -222,6 +244,7 @@
             </button>
 
             <button type="submit"
+                    @click="validateAndSubmit()"
                     x-show="currentStep === totalSteps - 1"
                     class="ml-auto px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition">
                 Submit
@@ -296,8 +319,23 @@ function surveyForm(total) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         },
+
+        validateAndSubmit() {
+            // Validate all required fields on current step before submitting
+            const section = document.querySelectorAll('[x-show]')[this.currentStep];
+            const invalid = section ? section.querySelectorAll('[required]') : [];
+            for (const el of invalid) {
+                if (!el.value) {
+                    el.focus();
+                    el.reportValidity();
+                    return;
+                }
+            }
+            // If validation passes, submit the form
+            document.getElementById('surveyForm').submit();
+        },
     };
 }
 </script>
-</body>
-</html>
+
+<?= $this->endSection() ?>

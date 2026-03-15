@@ -57,11 +57,13 @@ class AnalyticsService
             return ['average' => 0, 'count' => 0, 'distribution' => []];
         }
 
+        // Cast values to integers for numeric operations
+        $numericValues = array_map('intval', $values);
         $distribution = array_count_values($values);
 
         return [
-            'average'      => round(array_sum($values) / count($values), 2),
-            'count'        => count($values),
+            'average'      => round(array_sum($numericValues) / count($numericValues), 2),
+            'count'        => count($numericValues),
             'distribution' => $distribution,
         ];
     }

@@ -47,13 +47,16 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     $routes->post('surveys/(:num)/sections/(:num)/questions/(:num)/delete',         'Admin\QuestionController::delete/$1/$2/$3');
 
     // Results
-    $routes->get('surveys/(:num)/results',                'Admin\ResultsController::index/$1');
-    $routes->get('surveys/(:num)/results/(:num)',          'Admin\ResultsController::show/$1/$2');
-    $routes->post('surveys/(:num)/results/(:num)/delete',  'Admin\ResultsController::deleteRespondent/$1/$2');
+    $routes->get('surveys/(:num)/results',                                          'Admin\ResultsController::index/$1');
+    $routes->get('surveys/(:num)/results/analytics',                               'Admin\ResultsController::analytics/$1');
+    $routes->get('surveys/(:num)/results/(:num)',                                  'Admin\ResultsController::show/$1/$2');
+    $routes->get('surveys/(:num)/results/questions/(:num)/text-responses',         'Admin\ResultsController::textResponses/$1/$2');
+    $routes->get('surveys/(:num)/results/questions/(:num)/file-responses',         'Admin\ResultsController::fileResponses/$1/$2');
+    $routes->post('surveys/(:num)/results/(:num)/delete',                          'Admin\ResultsController::deleteRespondent/$1/$2');
 });
 
-// ── Public survey routes (protected by auth filter) ────────────────────────────────────────────────────
-$routes->group('s', ['filter' => 'auth'], static function ($routes) {
+// ── Public survey routes (NOT protected - open for respondents) ────────────────────────────────────────────────
+$routes->group('s', static function ($routes) {
     $routes->get('',                  'Public\SurveyController::index');
     $routes->get('(:num)',            'Public\SurveyController::show/$1');
     $routes->post('(:num)/submit',    'Public\SurveyController::submit/$1');

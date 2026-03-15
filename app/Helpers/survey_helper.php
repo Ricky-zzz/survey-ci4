@@ -14,7 +14,6 @@ function resolveAnswerLabel(?array $question, ?string $value): string
 
     $type = $question['type'] ?? null;
 
-    // Resolve scale/multiple_choice to option label
     if (in_array($type, ['scale', 'multiple_choice'], true) && !empty($question['options'])) {
         foreach ($question['options'] as $opt) {
             if ($opt['value'] === $value) {

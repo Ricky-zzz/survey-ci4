@@ -47,20 +47,28 @@ class SurveyController extends BaseController
         $files     = $this->request->getFiles();
         
         // Extract demographics from form
+        $demographicsInput = $this->request->getPost('demographics') ?? [];
         $demographics = [
-            'fullname' => $this->request->getPost('demographics.fullname') ?? '',
-            'email'    => $this->request->getPost('demographics.email') ?? '',
-            'address'  => $this->request->getPost('demographics.address') ?? '',
-            'age'      => $this->request->getPost('demographics.age') ?? null,
+            'fullname' => trim($demographicsInput['fullname'] ?? ''),
+            'email'    => trim($demographicsInput['email'] ?? ''),
+            'address'  => trim($demographicsInput['address'] ?? ''),
+            'age'      => !empty($demographicsInput['age']) ? (int)$demographicsInput['age'] : null,
         ];
 
         // Validate demographics
-        if (empty($demographics['fullname']) || empty($demographics['email'])) {
+        $errors = [];
+        if (empty($demographics['email'])) {
+            $errors['demographics_email'] = 'Email is required';
+        }
+        if (empty($demographics['address'])) {
+            $errors['demographics_address'] = 'Address is required';
+        }
+        if ($demographics['age'] === null || $demographics['age'] === 0) {
+            $errors['demographics_age'] = 'Age is required';
+        }
+        if (!empty($errors)) {
             return redirect()->back()
-                ->with('validation_errors', [
-                    'demographics_fullname' => 'Full Name is required',
-                    'demographics_email' => 'Email is required',
-                ])
+                ->with('validation_errors', $errors)
                 ->withInput();
         }
 

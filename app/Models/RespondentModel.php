@@ -41,4 +41,25 @@ class RespondentModel extends Model
             'pending'   => $total - $completed,
         ];
     }
+
+    public function getCompletedForSurveyFiltered(int $surveyId, ?int $ageMin = null, ?int $ageMax = null, ?string $address = null): array
+    {
+        $query = $this->where('survey_id', $surveyId)
+                      ->where('submitted_at IS NOT NULL');
+
+        if ($ageMin !== null) {
+            $query = $query->where('age >=', $ageMin);
+        }
+
+        if ($ageMax !== null) {
+            $query = $query->where('age <=', $ageMax);
+        }
+
+        if ($address !== null && $address !== '') {
+            $query = $query->like('address', $address);
+        }
+
+        return $query->orderBy('submitted_at', 'DESC')
+                     ->findAll();
+    }
 }
