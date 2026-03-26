@@ -16,7 +16,7 @@ class App extends BaseConfig
      *
      * E.g., http://example.com/
      */
-    public string $baseURL = 'http://survey-ci4.test/';
+    public string $baseURL = 'http://ci4survey.infinityfreeapp.com/';
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.
