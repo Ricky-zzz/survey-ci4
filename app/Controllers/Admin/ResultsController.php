@@ -157,16 +157,13 @@ class ResultsController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        // Get filter params from query string
         $ageMin  = $this->request->getVar('age_min') ? (int) $this->request->getVar('age_min') : null;
         $ageMax  = $this->request->getVar('age_max') ? (int) $this->request->getVar('age_max') : null;
         $address = $this->request->getVar('address') ? trim($this->request->getVar('address')) : null;
 
-        // Get respondents matching filters
         $respondents = (new RespondentModel())->getCompletedForSurveyFiltered($surveyId, $ageMin, $ageMax, $address);
         $respondentIds = array_column($respondents, 'id');
 
-        // Get responses for this question from filtered respondents
         $responses = [];
         if (!empty($respondentIds)) {
             $responses = (new ResponseModel())->whereIn('respondent_id', $respondentIds)
@@ -174,7 +171,6 @@ class ResultsController extends BaseController
                                               ->findAll();
         }
 
-        // Enrich responses with respondent data
         $respondentMap = array_column($respondents, null, 'id');
         $enrichedResponses = [];
         foreach ($responses as $response) {

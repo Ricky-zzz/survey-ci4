@@ -49,6 +49,13 @@
             <p class="text-center text-sm text-gray-600 mt-6">
                 Don't have an account? <a href="<?= base_url('admin/register') ?>" class="text-blue-600 hover:underline font-medium">Create one</a>
             </p>
+
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <a href="<?= base_url('/') ?>"
+                   class="block w-full text-center text-sm text-blue-600 hover:text-gray-900 py-2 rounded-lg hover:bg-gray-50 transition">
+                    Answer Surveys Anonymously
+                </a>
+            </div>
         </div>
     </div>
 </body>

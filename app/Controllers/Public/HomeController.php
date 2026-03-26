@@ -8,8 +8,21 @@ class HomeController extends BaseController
 {
     public function index()
     {
-        // Redirect to admin login
-        return redirect()->to(base_url('admin/index'));
+        $adminId = session()->get('admin_id');
+        
+        // If logged in as admin, go to dashboard
+        if ($adminId) {
+            return redirect()->to(base_url('admin/dashboard'));
+        }
+
+        // Show public surveys for anonymous users
+        $surveys = (new \App\Models\SurveyModel())
+            ->where('is_public', 1)
+            ->where('is_active', 1)
+            ->orderBy('created_at', 'DESC')
+            ->findAll();
+
+        return view('public/index', ['surveys' => $surveys]);
     }
 
     public function accessByPasscode()

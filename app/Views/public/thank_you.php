@@ -1,4 +1,8 @@
-<?= $this->extend('layout_admin') ?>
+<?php 
+$adminId = session()->get('admin_id');
+$layout = $adminId ? 'layout_admin' : 'layout_public';
+echo $this->extend($layout);
+?>
 
 <?= $this->section('content') ?>
 
