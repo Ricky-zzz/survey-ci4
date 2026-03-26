@@ -10,8 +10,8 @@ echo $this->extend($layout);
      x-init="init()">
 
     <!-- Header with Progress -->
-    <div class="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm -mx-6 px-6 mb-6">
-        <div class="py-5">
+    <div class="sticky top-16 z-30 bg-white border-b border-gray-200 shadow-sm mb-6">
+        <div class="py-5 px-6">
             <div class="mb-4">
                 <h1 class="text-2xl font-semibold text-gray-900"><?= esc($survey['name']) ?></h1>
                 <?php if ($survey['description']): ?>
