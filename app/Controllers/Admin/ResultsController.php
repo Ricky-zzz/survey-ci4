@@ -133,17 +133,152 @@ class ResultsController extends BaseController
             }
         }
 
+        $ageAnalytics     = $this->buildAgeDistribution($respondents);
+        $addressAnalytics = $this->buildAddressDistribution($respondents);
+
         return view('admin/results/analytics', [
             'survey'              => $survey,
             'stats'               => $stats,
             'respondents'         => $respondents,
             'questionAnalytics'   => $questionAnalytics,
+            'ageAnalytics'        => $ageAnalytics,
+            'addressAnalytics'    => $addressAnalytics,
             'filters'             => [
                 'age_min' => $ageMin,
                 'age_max' => $ageMax,
                 'address' => $address,
             ],
         ]);
+    }
+
+    private function buildAgeDistribution(array $respondents): array
+    {
+        $ranges = [
+            ['label' => '1-21', 'min' => 1, 'max' => 21],
+            ['label' => '22-35', 'min' => 22, 'max' => 35],
+            ['label' => '36-59', 'min' => 36, 'max' => 59],
+            ['label' => '60+', 'min' => 60, 'max' => null],
+        ];
+
+        $counts = array_fill(0, count($ranges), 0);
+        $unknown = 0;
+
+        foreach ($respondents as $respondent) {
+            $ageValue = $respondent['age'] ?? null;
+            if ($ageValue === null || $ageValue === '') {
+                $unknown++;
+                continue;
+            }
+
+            $age = (int) $ageValue;
+            foreach ($ranges as $idx => $range) {
+                $min = $range['min'];
+                $max = $range['max'];
+
+                if ($age >= $min && ($max === null || $age <= $max)) {
+                    $counts[$idx]++;
+                    break;
+                }
+            }
+        }
+
+        $items = [];
+        $total = array_sum($counts) + $unknown;
+
+        foreach ($ranges as $idx => $range) {
+            $count = $counts[$idx];
+            $items[] = [
+                'label'   => $range['label'],
+                'count'   => $count,
+                'percent' => $total > 0 ? round(($count / $total) * 100) : 0,
+            ];
+        }
+
+        if ($unknown > 0) {
+            $items[] = [
+                'label'   => 'Unknown',
+                'count'   => $unknown,
+                'percent' => $total > 0 ? round(($unknown / $total) * 100) : 0,
+            ];
+        }
+
+        return [
+            'total' => $total,
+            'items' => $items,
+        ];
+    }
+
+    private function buildAddressDistribution(array $respondents): array
+    {
+        $counts = [];
+        $labels = [];
+        $unknown = 0;
+
+        foreach ($respondents as $respondent) {
+            $address = isset($respondent['address']) ? trim((string) $respondent['address']) : '';
+            if ($address === '') {
+                $unknown++;
+                continue;
+            }
+
+            $key = $this->normalizeAddressKey($address);
+            if ($key === '') {
+                $unknown++;
+                continue;
+            }
+
+            if (! isset($labels[$key])) {
+                $labels[$key] = $this->normalizeAddressLabel($address);
+            }
+
+            if (! isset($counts[$key])) {
+                $counts[$key] = 0;
+            }
+
+            $counts[$key]++;
+        }
+
+        arsort($counts);
+
+        $items = [];
+        $total = array_sum($counts) + $unknown;
+        foreach ($counts as $key => $count) {
+            $items[] = [
+                'label'   => $labels[$key] ?? 'Unknown',
+                'count'   => $count,
+                'percent' => $total > 0 ? round(($count / $total) * 100) : 0,
+            ];
+        }
+
+        if ($unknown > 0) {
+            $items[] = [
+                'label'   => 'Unknown',
+                'count'   => $unknown,
+                'percent' => $total > 0 ? round(($unknown / $total) * 100) : 0,
+            ];
+        }
+
+        return [
+            'total' => $total,
+            'items' => $items,
+        ];
+    }
+
+    private function normalizeAddressKey(string $address): string
+    {
+        $key = strtolower($address);
+        $key = preg_replace('/[^a-z0-9\s]/i', ' ', $key);
+        $key = preg_replace('/\s+/', ' ', trim($key));
+
+        return $key;
+    }
+
+    private function normalizeAddressLabel(string $address): string
+    {
+        $label = preg_replace('/\s*,\s*/', ', ', trim($address));
+        $label = preg_replace('/\s+/', ' ', $label);
+
+        return $label;
     }
 
     public function textResponses(int $surveyId, int $questionId)

@@ -68,6 +68,66 @@
     </div>
 </div>
 
+<!-- Demographics -->
+<?php
+$chartColors = [
+    '#2563eb', '#10b981', '#f59e0b', '#ef4444',
+    '#14b8a6', '#f97316', '#84cc16', '#0ea5e9',
+    '#64748b', '#22c55e', '#eab308', '#dc2626'
+];
+?>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-900">Age Distribution</h3>
+            <span class="text-xs text-gray-400"><?= $ageAnalytics['total'] ?? 0 ?> respondents</span>
+        </div>
+        <?php if (empty($ageAnalytics['items'])): ?>
+            <div class="text-sm text-gray-400">No age data available.</div>
+        <?php else: ?>
+            <div style="height: 500px;">
+                <canvas id="agePie"></canvas>
+            </div>
+            <div class="mt-4 grid grid-cols-1 gap-2 text-xs text-gray-700">
+                <?php foreach ($ageAnalytics['items'] as $idx => $item): ?>
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="h-2.5 w-2.5 rounded-sm" style="background-color: <?= $chartColors[$idx % count($chartColors)] ?>"></span>
+                            <span class="truncate font-semibold text-gray-800"><?= esc($item['label']) ?></span>
+                        </div>
+                        <span class="text-gray-600 font-semibold"><?= $item['count'] ?> (<?= $item['percent'] ?>%)</span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-900">Address Distribution</h3>
+            <span class="text-xs text-gray-400"><?= $addressAnalytics['total'] ?? 0 ?> respondents</span>
+        </div>
+        <?php if (empty($addressAnalytics['items'])): ?>
+            <div class="text-sm text-gray-400">No address data available.</div>
+        <?php else: ?>
+            <div style="height: 500px;">
+                <canvas id="addressPie"></canvas>
+            </div>
+            <div class="mt-4 grid grid-cols-1 gap-2 text-xs text-gray-700">
+                <?php foreach ($addressAnalytics['items'] as $idx => $item): ?>
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="h-2.5 w-2.5 rounded-sm" style="background-color: <?= $chartColors[$idx % count($chartColors)] ?>"></span>
+                            <span class="truncate font-semibold text-gray-800"><?= esc($item['label']) ?></span>
+                        </div>
+                        <span class="text-gray-600 font-semibold"><?= $item['count'] ?> (<?= $item['percent'] ?>%)</span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
 <!-- Question Analytics -->
 <div class="space-y-6">
     <?php foreach ($survey['sections'] as $section): ?>
@@ -195,5 +255,65 @@
         </div>
     <?php endforeach; ?>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+<script>
+const ageItems = <?= json_encode($ageAnalytics['items'] ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+const addressItems = <?= json_encode($addressAnalytics['items'] ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+
+const chartColors = <?= json_encode($chartColors, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+
+function buildPieChart(canvasId, items) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || items.length === 0) return;
+
+    const labels = items.map(item => item.label);
+    const data = items.map(item => item.count);
+
+    new Chart(canvas, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: labels.map((_, idx) => chartColors[idx % chartColors.length]),
+                borderWidth: 1,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    color: '#ffffff',
+                    formatter: (value, ctx) => {
+                        const dataset = ctx.chart.data.datasets[0] || { data: [] };
+                        const total = dataset.data.reduce((sum, item) => sum + item, 0) || 0;
+                        if (total === 0) return '';
+                        const percent = Math.round((value / total) * 100);
+                        return `${percent}%`;
+                    },
+                    font: { weight: '600', size: 10 },
+                    textStrokeColor: 'rgba(0,0,0,0.35)',
+                    textStrokeWidth: 2,
+                    clip: true
+                },
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `${ctx.label}: ${ctx.parsed}`
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+
+buildPieChart('agePie', ageItems);
+buildPieChart('addressPie', addressItems);
+</script>
 
 <?= $this->endSection() ?>
