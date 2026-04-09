@@ -3,20 +3,23 @@
 namespace App\Services;
 
 use App\Models\QuestionModel;
+use App\Models\QuestionOptionModel;
 use App\Models\RespondentModel;
 use App\Models\ResponseModel;
 
 class AnalyticsService
 {
-    private ResponseModel   $responseModel;
-    private RespondentModel $respondentModel;
-    private QuestionModel   $questionModel;
+    private ResponseModel         $responseModel;
+    private RespondentModel       $respondentModel;
+    private QuestionModel         $questionModel;
+    private QuestionOptionModel   $questionOptionModel;
 
     public function __construct()
     {
-        $this->responseModel   = new ResponseModel();
-        $this->respondentModel = new RespondentModel();
-        $this->questionModel   = new QuestionModel();
+        $this->responseModel       = new ResponseModel();
+        $this->respondentModel     = new RespondentModel();
+        $this->questionModel       = new QuestionModel();
+        $this->questionOptionModel = new QuestionOptionModel();
     }
 
     public function getSurveyStats(int $surveyId): array
@@ -43,40 +46,80 @@ class AnalyticsService
         $responses = $this->responseModel->getByQuestion($questionId);
 
         return match ($question['type']) {
-            QuestionModel::TYPE_SCALE           => $this->getScaleStats($responses),
-            QuestionModel::TYPE_MULTIPLE_CHOICE => $this->getChoiceStats($responses),
+            QuestionModel::TYPE_SCALE           => $this->getScaleStats($responses, $questionId),
+            QuestionModel::TYPE_MULTIPLE_CHOICE => $this->getChoiceStats($responses, $questionId),
             QuestionModel::TYPE_YESNO           => $this->getYesNoStats($responses),
             default                             => ['count' => count($responses)],
         };
     }
 
-    private function getScaleStats(array $responses): array
+    private function getScaleStats(array $responses, int $questionId): array
     {
         $values = array_filter(array_column($responses, 'answer_value'));
+        $distribution = array_count_values($values);
+
+        // Get all options for this question
+        $options = $this->questionOptionModel->getForQuestion($questionId);
+        
+        // Build full distribution with all options (0 if not selected)
+        $fullDistribution = [];
+        foreach ($options as $opt) {
+            $optValue = $opt['value'] ?? $opt['option_text'];
+            $count = $distribution[$optValue] ?? 0;
+            
+            // Fuzzy match if exact didn't work
+            if ($count === 0) {
+                foreach (array_keys($distribution) as $responseValue) {
+                    if (strpos($responseValue, substr($optValue, 0, 50)) === 0) {
+                        $count = $distribution[$responseValue];
+                        break;
+                    }
+                }
+            }
+            
+            $fullDistribution[$optValue] = $count;
+        }
+
         if (empty($values)) {
-            return ['average' => 0, 'count' => 0, 'distribution' => []];
+            return ['average' => 0, 'count' => 0, 'distribution' => $fullDistribution];
         }
 
         // Cast values to integers for numeric operations
         $numericValues = array_map('intval', $values);
-        $distribution = array_count_values($values);
 
         return [
             'average'      => round(array_sum($numericValues) / count($numericValues), 2),
             'count'        => count($numericValues),
-            'distribution' => $distribution,
+            'distribution' => $fullDistribution,
         ];
     }
 
-    private function getChoiceStats(array $responses): array
+    private function getChoiceStats(array $responses, int $questionId): array
     {
         $values       = array_filter(array_column($responses, 'answer_value'));
         $distribution = array_count_values($values);
         $total        = count($values);
 
+        // Get all options for this question
+        $options = $this->questionOptionModel->getForQuestion($questionId);
+
         $withPercent = [];
-        foreach ($distribution as $val => $count) {
-            $withPercent[$val] = [
+        foreach ($options as $opt) {
+            $optValue = $opt['value'] ?? $opt['option_text'];
+            $optText = $opt['option_text'] ?? $opt['value'];
+            
+            // Try exact match first, then fuzzy match with first 50 chars
+            $count = $distribution[$optValue] ?? 0;
+            if ($count === 0) {
+                foreach (array_keys($distribution) as $responseValue) {
+                    if (strpos($responseValue, substr($optValue, 0, 50)) === 0) {
+                        $count = $distribution[$responseValue];
+                        break;
+                    }
+                }
+            }
+            
+            $withPercent[$optText] = [
                 'count'   => $count,
                 'percent' => $total > 0 ? round(($count / $total) * 100) : 0,
             ];
